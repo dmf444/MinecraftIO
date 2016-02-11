@@ -50,7 +50,7 @@ public class GrapplCommand implements ICommand {
             if (CMDin[0].equals("open")) {
                 openGrapple(sender, CMDin);
             } else if (CMDin[0].equals("close")) {
-                closeGrapple();
+                closeGrapple(sender);
             }
 
         }
@@ -78,19 +78,26 @@ public class GrapplCommand implements ICommand {
     {
         return MinecraftServer.getServer().getAllUsernames();
     }
-public static Grappl grappl;
+public static GrapplMC grappl;
     private void openGrapple(ICommandSender send, String[] cmd){
         if(grappl == null) {
-            String s = MinecraftServer.getServer().shareToLAN(WorldSettings.GameType.SURVIVAL, false);
-            //System.out.println(s);
-            int port = Integer.parseInt(s);
+            int port = 0;
+            if(!MinecraftServer.getServer().isDedicatedServer()){
+                String s = MinecraftServer.getServer().shareToLAN(WorldSettings.GameType.SURVIVAL, false);
+                //System.out.println(s);
+                 port = Integer.parseInt(s);
+            }else{
+                port = MinecraftServer.getServer().getServerPort();
+            }
+
             /*if (cmd.length == 3) {
                 grappl = new GrapplBuilder().useLoginDetails(cmd[1], cmd[2].toCharArray()).login().build();
                 grappl.setInternalPort(port);
                 grappl.connect("n.grappl.io");
                 send.addChatMessage(new ChatComponentText("Server opened at: " + grappl.getRelayServer() +":"+ grappl.getExternalPort()));
             } else*/ if (cmd.length == 1) {
-                grappl = new GrapplBuilder().atLocalPort(port).build();
+                GrapplMCBuilder g = (GrapplMCBuilder) new GrapplMCBuilder().atLocalPort(port);
+                grappl = g.buildMC();
                 grappl.connect("n.grappl.io");
                 send.addChatMessage(new ChatComponentText("Server opened at: " + grappl.getRelayServer() +":"+ grappl.getExternalPort()));
             } else {
@@ -101,10 +108,11 @@ public static Grappl grappl;
         System.out.println(grappl.getPublicAddress());
     }
 
-    private void closeGrapple(){
+    private void closeGrapple(ICommandSender sender){
         grappl.disconnect();
         //MinecraftServer.getServer().stopServer();
         grappl = null;
+        sender.addChatMessage(new ChatComponentText("Grappl.io Server has been closed"));
     }
 
 
