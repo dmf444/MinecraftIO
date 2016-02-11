@@ -1,33 +1,30 @@
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
     }
 }
+apply plugin: 'net.minecraftforge.gradle.forge'
 
-apply plugin: 'forge'
-
-version = "1.0"
+version = "1.2.0"
 group= "dmf444.MinecraftIO" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "minecraftIO"
 
 minecraft {
-    version = "1.7.10-10.13.4.1492-1.7.10"
-    runDir = "eclipse"
+version = "1.8.9-11.15.0.1688"
+    runDir = "run"
+    mappings = "snapshot_20151229"
 }
+version = "1.8.9-1.2.0"
 
 dependencies {
-	compile files('libs/GrapplClient.jar')
+	compile files('libs/GrapplLauncher.jar')
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
     //compile "some.group:artifact:version:classifier"

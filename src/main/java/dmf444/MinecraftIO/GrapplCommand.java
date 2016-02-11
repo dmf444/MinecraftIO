@@ -1,11 +1,13 @@
 package dmf444.MinecraftIO;
 
 import io.grappl.client.api.Grappl;
-import io.grappl.client.api.GrapplBuilder;
+import io.grappl.client.impl.error.RelayServerNotFoundException;
+import io.grappl.client.impl.stable.GrapplBuilder;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldSettings;
 
@@ -23,7 +25,7 @@ public class GrapplCommand implements ICommand {
     }
 
     @Override
-    public int compareTo(Object arg0) {
+    public int compareTo(ICommand t) {
         return 0;
     }
 
@@ -43,14 +45,18 @@ public class GrapplCommand implements ICommand {
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] CMDin) {
+    public void processCommand(ICommandSender sender, String[] CMDin) throws WrongUsageException {
         if (CMDin.length < 1) {
             throw new WrongUsageException(getCommandUsage(null), new Object[0]);
         } else {
             if (CMDin[0].equals("open")) {
-                openGrapple(sender, CMDin);
+                try {
+                    openGrapple(sender, CMDin);
+                } catch (RelayServerNotFoundException e) {
+                    sender.addChatMessage(new ChatComponentText("Error Connecting to Grappl Servers"));
+                }
             } else if (CMDin[0].equals("close")) {
-                closeGrapple();
+                closeGrapple(sender);
             }
 
         }
@@ -62,7 +68,7 @@ public class GrapplCommand implements ICommand {
     }
 
     @Override
-    public List addTabCompletionOptions(ICommandSender p_71516_1_, String[] p_71516_2_) {
+    public List addTabCompletionOptions(ICommandSender p_71516_1_, String[] p_71516_2_, BlockPos s) {
         List<String> cmds = new ArrayList<String>();
         cmds.add("open");
         cmds.add("close");
@@ -78,12 +84,14 @@ public class GrapplCommand implements ICommand {
     {
         return MinecraftServer.getServer().getAllUsernames();
     }
-public static Grappl grappl;
-    private void openGrapple(ICommandSender send, String[] cmd){
+    public static Grappl grappl;
+
+    private void openGrapple(ICommandSender send, String[] cmd) throws WrongUsageException, RelayServerNotFoundException {
         if(grappl == null) {
             String s = MinecraftServer.getServer().shareToLAN(WorldSettings.GameType.SURVIVAL, false);
-            //System.out.println(s);
+
             int port = Integer.parseInt(s);
+
             /*if (cmd.length == 3) {
                 grappl = new GrapplBuilder().useLoginDetails(cmd[1], cmd[2].toCharArray()).login().build();
                 grappl.setInternalPort(port);
@@ -91,8 +99,9 @@ public static Grappl grappl;
                 send.addChatMessage(new ChatComponentText("Server opened at: " + grappl.getRelayServer() +":"+ grappl.getExternalPort()));
             } else*/ if (cmd.length == 1) {
                 grappl = new GrapplBuilder().atLocalPort(port).build();
+                System.out.println(grappl);
                 grappl.connect("n.grappl.io");
-                send.addChatMessage(new ChatComponentText("Server opened at: " + grappl.getRelayServer() +":"+ grappl.getExternalPort()));
+                send.addChatMessage(new ChatComponentText("Server opened at: " + grappl.getExternalServer().getAddress() +":"+ grappl.getExternalServer().getPort()));
             } else {
                 throw new WrongUsageException(getCommandUsage(null), new Object[0]);
             }
@@ -101,10 +110,11 @@ public static Grappl grappl;
         System.out.println(grappl.getPublicAddress());
     }
 
-    private void closeGrapple(){
+    private void closeGrapple(ICommandSender send){
         grappl.disconnect();
         //MinecraftServer.getServer().stopServer();
         grappl = null;
+        send.addChatMessage(new ChatComponentText("Server is now closed!"));
     }
 
 

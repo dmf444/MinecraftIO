@@ -1,10 +1,10 @@
 package dmf444.MinecraftIO;
 
 
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraft.client.Minecraft;
 
 import java.io.File;
@@ -23,8 +23,8 @@ public class MinecraftIO
     @EventHandler
     public void serverstart(FMLServerStartingEvent event)
     {
-        //if(new File(Minecraft.getMinecraft().mcDataDir + "/mods/1.7.10/GrapplClient.jar").exists()) {
+        if(new File(Minecraft.getMinecraft().mcDataDir + "/mods/1.8.9/GrapplLauncher.jar").exists()) {
             event.registerServerCommand(new GrapplCommand());
-        //}
+        }
     }
 }
